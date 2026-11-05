@@ -1,104 +1,78 @@
 # UrbanAI
 
-Projeto Integrador desenvolvido durante o 5º semestre de Ciência da Computação no Instituto Mauá de Tecnologia.
+**Português** · [English](README.en.md)
 
-## Sobre o projeto
+App mobile (Flutter + Firebase) de **busca de imóveis por conversa**: o usuário descreve o que procura em linguagem natural e um agente de IA orquestrado no **n8n** decide quando buscar anúncios reais, analisa os resultados e responde com recomendações.
 
-O **UrbanAI** é uma plataforma voltada ao mercado imobiliário que utiliza Inteligência Artificial para auxiliar usuários na busca por imóveis de forma mais personalizada e conversacional.
+> Projeto Integrador do 5º semestre de Ciência da Computação, Instituto Mauá de Tecnologia (IMT).
 
-O projeto foi desenvolvido utilizando Flutter no front-end e integração com agentes de IA e automações no back-end. A proposta é transformar a experiência de busca imobiliária em algo mais inteligente, contextual e próximo de uma conversa natural.
+---
 
-## Objetivos do projeto
+## Como funciona
 
-- Aplicar Inteligência Artificial em um problema real.
-- Desenvolver uma experiência conversacional para recomendação de imóveis.
-- Integrar aplicações mobile com APIs e automações.
-- Estruturar um fluxo moderno de software utilizando IA.
-- Explorar conceitos de UX, arquitetura e integração de serviços.
-
-## Funcionalidades
-
-- Chat inteligente para recomendação de imóveis.
-- Coleta contextual de preferências do usuário.
-- Integração com IA para análise de perfil.
-- Estrutura preparada para integração com scraping e APIs imobiliárias.
-- Interface mobile desenvolvida em Flutter.
-- Fluxo de automação utilizando serviços externos.
-
-## Tecnologias utilizadas
-
-- Flutter
-- Dart
-- Firebase
-- APIs REST
-- Inteligência Artificial
-- N8N
-- GitHub
-
-## Arquitetura geral
-
-O projeto foi pensado com uma arquitetura dividida entre:
-
-- Front-end mobile em Flutter.
-- Camada de IA responsável por interpretação e tomada de decisão.
-- Fluxos automatizados via N8N.
-- Integrações externas para obtenção de dados.
-
-## Estrutura do projeto
-
-```text
-S5_ProjetoIntegrador_UrbanAI/
-├── lib/
-├── assets/
-├── pubspec.yaml
-└── README.md
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant A as App Flutter
+    participant N as Agente de IA (n8n)
+    participant S as SerpAPI + anúncios
+    U->>A: "Quero um 2 quartos perto do metrô até R$ 3 mil"
+    A->>N: webhook 1: mensagem + histórico
+    alt precisa de anúncios
+        N-->>A: EXECUTE_SCRAPING_TASK + consulta de busca
+        A->>S: busca a consulta e lê as páginas dos anúncios
+        S-->>A: anúncios coletados
+        A->>N: webhook 2: anúncios coletados
+    end
+    N-->>A: resposta final + imóveis recomendados
+    A-->>U: cartões de imóvel, favoritos e mapa
 ```
+
+A decisão fica com o agente, e a execução fica no app: o n8n devolve uma **ação estruturada** (`action_tag` + consulta) em vez de texto livre, o app executa a busca e devolve os dados para o agente concluir. É o mesmo padrão de *tool calling* dos agentes de LLM, implementado com dois webhooks.
+
+| Peça | Onde |
+|---|---|
+| Conversa com o agente (os dois webhooks) | [`lib/services/user_services.dart`](lib/services/user_services.dart) |
+| Busca e leitura de anúncios (SerpAPI + páginas) | [`lib/scripts/ScrapeScript.dart`](lib/scripts/ScrapeScript.dart) |
+| Login (e-mail e Google) e dados do usuário | [`lib/services/auth_service.dart`](lib/services/auth_service.dart), [`lib/services/firestore_service.dart`](lib/services/firestore_service.dart) |
+| Telas: conversa, favoritos, mapa, configurações | [`lib/pages/`](lib/pages/) |
+
+---
+
+## Stack
+
+| Camada | Tecnologias |
+|---|---|
+| App | Flutter (Dart), Material |
+| Backend | Firebase Authentication (e-mail e Google Sign-In), Cloud Firestore (perfil e histórico de conversas) |
+| IA e automação | Agente de IA em workflow do n8n, acionado por webhooks |
+| Dados externos | SerpAPI (busca) e leitura das páginas de anúncio; Google Maps e Geocoding para o mapa |
+
+O workflow do n8n (prompt do agente e nós) roda fora deste repositório.
+
+---
 
 ## Como executar
 
-### Pré-requisitos
-
-- Flutter SDK
-- Dart SDK
-
-### Instalação
+Pré-requisitos: [Flutter](https://docs.flutter.dev/get-started/install) (Dart 3.7+), um projeto no Firebase, uma chave da SerpAPI e o workflow do n8n publicado.
 
 ```bash
-# Clone o repositório
 git clone https://github.com/pgmaximo/S5_ProjetoIntegrador_UrbanAI.git
-
-# Entre na pasta
 cd S5_ProjetoIntegrador_UrbanAI
-
-# Instale as dependências
 flutter pub get
-```
 
-### Executar o projeto
+# 1. Firebase: gera lib/firebase_options.dart
+flutterfire configure
 
-```bash
+# 2. Chaves: copie o modelo e preencha (o arquivo real está no .gitignore)
+cp lib/scripts/secret.example.dart lib/scripts/secret.dart
+touch lib/scripts/.env
+
 flutter run
 ```
 
-## Aprendizados
+---
 
-Este projeto contribuiu para aprofundar conhecimentos em:
+## Equipe
 
-- Desenvolvimento mobile.
-- Arquitetura de aplicações modernas.
-- Engenharia de prompts.
-- Integração com IA.
-- Fluxos automatizados.
-- Experiência conversacional.
-- Desenvolvimento orientado a produto.
-
-## Status
-
-Projeto acadêmico em evolução.
-
-## Autor
-
-Pedro Gabriel Oliveira Máximo
-
-- GitHub: [@pgmaximo](https://github.com/pgmaximo)
-- LinkedIn: [Pedro Gabriel Máximo](https://www.linkedin.com/in/pedro-gabriel-maximo/)
+Desenvolvido por Pedro Gabriel Oliveira Máximo, Arturo Ochoa Garcia e Brunno Bernacchi de Souza.
