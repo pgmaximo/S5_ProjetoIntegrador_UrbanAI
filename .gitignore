@@ -15,6 +15,11 @@ migrate_working_dir/
 secret.dart
 web/index.html
 
+# Firebase config (gerado por `flutterfire configure`)
+google-services.json
+GoogleService-Info.plist
+lib/firebase_options.dart
+
 # IntelliJ related
 *.iml
 *.ipr
