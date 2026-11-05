@@ -61,7 +61,7 @@ git clone https://github.com/pgmaximo/S5_ProjetoIntegrador_UrbanAI.git
 cd S5_ProjetoIntegrador_UrbanAI
 flutter pub get
 
-# 1. Firebase: gera lib/firebase_options.dart
+# 1. Firebase: gera lib/firebase_options.dart e android/app/google-services.json
 flutterfire configure
 
 # 2. Chaves: copie o modelo e preencha (o arquivo real está no .gitignore)
