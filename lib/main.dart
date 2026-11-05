@@ -14,7 +14,7 @@ void main() async {
   );
 
   // Carrega as variáveis de ambiente do arquivo .env.
-  await dotenv.load(fileName: 'lib/Scripts/.env');
+  await dotenv.load(fileName: 'lib/scripts/.env');
   
   runApp(MyApp());
 }
